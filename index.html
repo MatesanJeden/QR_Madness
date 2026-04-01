@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
     <title>QR Madness</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -21,16 +22,13 @@
             }
         };
     </script>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#10B981">
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('admin') === 'true') {
-            // Pokud je v URL ?admin=true, podstrčíme admin manifest
-            let link = document.createElement('link');
-            link.rel = 'manifest';
-            link.href = 'admin-manifest.json';
-            document.head.appendChild(link);
+        // Dynamically set manifest based on admin mode
+        const manifestParams = new URLSearchParams(window.location.search);
+        const isAdminMode = manifestParams.get('admin') === 'true';
+        const manifestLink = document.querySelector('link[rel="manifest"]');
+        if (isAdminMode && manifestLink) {
+            manifestLink.href = 'manifest-admin.json';
         }
     </script>
 </head>

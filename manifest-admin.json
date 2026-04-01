@@ -1,0 +1,21 @@
+{
+    "short_name": "QR Madness Admin",
+    "name": "QR Madness: Admin Panel",
+    "icons": [
+        {
+            "src": "icons/admin_icon_512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        },
+        {
+            "src": "icons/admin_icon_192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        }
+    ],
+    "start_url": "/?admin=true",
+    "background_color": "#FFFFFF",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#10B981"
+}
