@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Madness</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Trebuchet MS', 'Verdana', 'sans-serif'],
+            body: ['Segoe UI', 'Tahoma', 'sans-serif']
+          },
+          boxShadow: {
+            panel: '0 24px 60px rgba(15, 23, 42, 0.16)'
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_38%),linear-gradient(135deg,_#fffaf0_0%,_#f3f4f6_48%,_#dbeafe_100%)] font-body text-slate-900">
+  <main class="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-8 sm:px-6 lg:px-8">
+    <section class="mb-8 flex flex-col gap-4 rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-panel backdrop-blur md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="mb-2 inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-700">Radikální soutěž</p>
+        <h1 class="font-display text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">QR Madness</h1>
+        <p class="mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">Naskenuj kódy, získej memy a vyhraj kyselé žížalky!</p>
+      </div>
+      <div id="player-chip" class="hidden rounded-2xl bg-slate-900 px-4 py-3 text-sm text-white"></div>
+    </section>
+
+    <section id="welcome-screen" class="hidden mx-auto w-full max-w-xl rounded-[2rem] border border-white/70 bg-white/85 p-8 shadow-panel backdrop-blur">
+      <div class="mb-6">
+        <p class="text-sm font-semibold uppercase tracking-[0.25em] text-amber-600">Vítej!</p>
+        <h2 class="mt-2 font-display text-3xl font-black text-slate-900">Připoj se k honu</h2>
+      </div>
+
+      <form id="start-form" class="space-y-4">
+        <label class="block">
+          <span class="mb-2 block text-sm font-medium text-slate-700">Tvoje nezapomenutelná přezdívka</span>
+          <input id="player-name" type="text" maxlength="40" placeholder="Radikální lovec memů" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100" required>
+        </label>
+        <button id="start-button" type="submit" class="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-500 px-4 py-3 text-base font-semibold text-white transition hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-200 disabled:cursor-not-allowed disabled:bg-slate-400">Začít</button>
+      </form>
+    </section>
+
+    <section id="dashboard-screen" class="hidden space-y-6">
+      <section id="congratulations-screen" class="hidden rounded-[2rem] border border-emerald-200 bg-[linear-gradient(135deg,_rgba(16,185,129,0.14),_rgba(255,255,255,0.96),_rgba(251,191,36,0.18))] p-8 shadow-panel">
+        <p class="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-700">Dokončeno</p>
+        <h2 class="mt-3 font-display text-4xl font-black text-slate-900">Gratulujeme, našel jsi všechny memy.</h2>
+        <p class="mt-4 max-w-2xl text-base leading-7 text-slate-700">Čas dokončení byl uložen. Aplikaci můžeš kdykoli znovu otevřít a projít si kompletní sbírku.</p>
+        <div class="mt-6 rounded-2xl bg-slate-900 px-5 py-4 text-white">
+          <div class="text-xs uppercase tracking-[0.2em] text-slate-300">Konečný výsledek</div>
+          <div id="completion-summary" class="mt-2 text-2xl font-black">0 / 0 nalezených</div>
+        </div>
+      </section>
+
+      <div class="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <article class="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-panel backdrop-blur">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p class="text-sm font-semibold uppercase tracking-[0.25em] text-sky-600">Tvoje kolekce</p>
+            </div>
+            <div class="rounded-2xl bg-slate-900 px-4 py-3 text-right text-white">
+              <div class="text-xs uppercase tracking-[0.2em] text-slate-300">Postup</div>
+              <div id="progress-counter" class="text-2xl font-black">0 / 0 nalezených</div>
+            </div>
+          </div>
+          <div id="items-grid" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"></div>
+        </article>
+
+        <aside class="space-y-4">
+          <article class="rounded-[2rem] border border-white/70 bg-slate-900 p-6 text-white shadow-panel">
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">Jak to funguje</p>
+            <p class="mt-4 text-sm leading-6 text-slate-200">Každý QR kód otevře tuto aplikaci s identifikátorem položky. Po naskenování se okamžitě uloží do vaší sbírky.</p>
+          </article>
+          <article class="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-panel backdrop-blur">
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-amber-600">Hra</p>
+            <dl class="mt-4 space-y-3 text-sm text-slate-700">
+              <div class="flex items-center justify-between gap-3">
+                <dt>Začátek</dt>
+                <dd id="started-at" class="font-semibold text-slate-900">-</dd>
+              </div>
+              <div class="flex items-center justify-between gap-3">
+                <dt>Aktuální stav</dt>
+                <dd id="status-text" class="font-semibold text-slate-900">Prozkoumávání v plném proudu</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="rounded-[2rem] border border-sky-200 bg-sky-50/80 p-6 shadow-panel">
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-sky-700">Vývojářský panel</p>
+            <label for="simulate-item-select" class="mt-4 block text-sm font-medium text-slate-700">Simulovat QR položku</label>
+            <select id="simulate-item-select" class="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"></select>
+
+            <div class="mt-3 grid gap-3 sm:grid-cols-2">
+              <button id="simulate-scan-button" type="button" class="inline-flex items-center justify-center rounded-2xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200">Simulovat sken</button>
+              <button id="reset-progress-button" type="button" class="inline-flex items-center justify-center rounded-2xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-rose-700 focus:outline-none focus:ring-4 focus:ring-rose-200">Resetovat progres</button>
+            </div>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <section id="scan-result-screen" class="hidden mx-auto w-full max-w-3xl rounded-[2rem] border border-sky-200 bg-white/90 p-6 shadow-panel backdrop-blur sm:p-8">
+      <p class="text-sm font-semibold uppercase tracking-[0.25em] text-sky-700">Naskenováno</p>
+      <h2 id="scan-result-title" class="mt-2 font-display text-3xl font-black text-slate-900">Objevil jsi novou položku</h2>
+      <p class="mt-3 text-sm text-slate-600">Prohlédni si obrázek a potvrď pokračování zpět na hlavní obrazovku.</p>
+      <p id="scan-result-caption" class="mt-5 hidden text-2xl font-semibold leading-9 text-slate-700"></p>
+
+      <div class="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-slate-100">
+        <img id="scan-result-image" src="" alt="Naskenovaná položka" class="h-auto w-full object-cover">
+        <video id="scan-result-video" class="hidden h-auto w-full" controls autoplay loop playsinline></video>
+      </div>
+      <p id="scan-result-image-note" class="mt-3 hidden text-sm text-slate-500">Obrázek nebyl pro tuto položku dostupný.</p>
+
+      <button id="scan-continue-button" type="button" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-sky-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200">Pokračovat na přehled</button>
+    </section>
+
+    <section id="admin-screen" class="hidden space-y-6">
+      <article class="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-panel backdrop-blur">
+        <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-rose-600">Režim správce</p>
+            <h2 class="mt-2 font-display text-3xl font-black text-slate-900">Žebříček</h2>
+            <p class="mt-3 text-sm text-slate-600">Řazeno podle počtu nalezených memů a potom podle nejrychlejšího dokončení.</p>
+          </div>
+          <div id="admin-count" class="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white">0 hráčů</div>
+        </div>
+
+        <div class="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 bg-white">
+              <thead class="bg-slate-900 text-left text-xs uppercase tracking-[0.2em] text-slate-200">
+                <tr>
+                  <th class="px-4 py-4 font-semibold">Hráč</th>
+                  <th class="px-4 py-4 font-semibold">Nalezeno</th>
+                  <th class="px-4 py-4 font-semibold">Začátek</th>
+                  <th class="px-4 py-4 font-semibold">Konec</th>
+                  <th class="px-4 py-4 font-semibold">Čas</th>
+                  <th class="px-4 py-4 font-semibold">Stav</th>
+                  <th class="px-4 py-4 font-semibold">Akce</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body" class="divide-y divide-slate-100 text-sm text-slate-700"></tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <section id="message-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/55 p-4">
+    <article id="message-modal-panel" class="w-full max-w-md rounded-3xl border border-white/60 bg-white p-6 shadow-panel">
+      <p id="message-modal-title" class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-600">Upozornění</p>
+      <p id="message-modal-text" class="mt-3 text-base leading-7 text-slate-800"></p>
+      <button id="message-modal-close" type="button" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-slate-200">Rozumím</button>
+    </article>
+  </section>
+
+  <template id="item-card-template">
+    <article class="rounded-[1.75rem] border p-5 transition">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="item-label text-xs font-semibold uppercase tracking-[0.25em]"></p>
+          <h3 class="item-name mt-3 text-2xl font-black"></h3>
+        </div>
+        <span class="item-icon inline-flex h-12 w-12 items-center justify-center rounded-2xl text-xl font-black"></span>
+      </div>
+      <p class="item-description mt-5 text-sm leading-6"></p>
+      <button type="button" class="item-review-button mt-4 hidden inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-slate-200">Prohlédnout znovu</button>
+    </article>
+  </template>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
