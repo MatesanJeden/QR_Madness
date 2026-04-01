@@ -132,6 +132,8 @@ const elements = {
     scanResultScreen: document.getElementById('scan-result-screen'),
     scanResultTitle: document.getElementById('scan-result-title'),
     scanResultVideo: document.getElementById('scan-result-video'),
+    simulateLastItemButton: document.getElementById('simulate-last-item-button'),
+    simulateAllItemsButton: document.getElementById('simulate-all-items-button'),
     startButton: document.getElementById('start-button'),
     startForm: document.getElementById('start-form'),
     startedAt: document.getElementById('started-at'),
@@ -268,6 +270,44 @@ function bindEvents() {
 
     elements.understandButton.addEventListener('click', () => {
         moveHowItWorksToSidebar();
+    });
+
+    elements.simulateLastItemButton.addEventListener('click', async () => {
+        if (!playerId || !latestPlayer) {
+            showMessage('Nejprve založ hráče na úvodní obrazovce.', 'error');
+            return;
+        }
+
+        const lastItem = TOTAL_ITEMS[TOTAL_ITEMS.length - 1];
+        if (!lastItem) {
+            showMessage('Poslední položka nebyla nalezena.', 'error');
+            return;
+        }
+
+        pendingItemId = lastItem.id;
+        pendingImageParam = lastItem.image || null;
+        await collectPendingItem(playerId, latestPlayer.collectedItems);
+    });
+
+    elements.simulateAllItemsButton.addEventListener('click', async () => {
+        if (!playerId || !latestPlayer) {
+            showMessage('Nejprve založ hráče na úvodní obrazovce.', 'error');
+            return;
+        }
+
+        try {
+            const playerRef = doc(db, 'players', playerId);
+            await updateDoc(playerRef, {
+                collectedItems: ITEM_IDS,
+                finishTime: serverTimestamp()
+            });
+
+            finalRankingText = null;
+            showMessage('Byla simulovaná kompletní sbírka. Gratulace!', 'success');
+        } catch (error) {
+            console.error(error);
+            showMessage('Simulace všech memů selhala.', 'error');
+        }
     });
 }
 
@@ -782,23 +822,17 @@ async function loadFinalRanking(currentPlayerId) {
     isLoadingFinalRanking = true;
     try {
         const snapshot = await getDocs(collection(db, 'players'));
-        const players = snapshot.docs.map((playerDoc) => normalizePlayer(playerDoc.id, playerDoc.data()));
-        const sortedPlayers = sortPlayersForLeaderboard(players);
-        const rank = sortedPlayers.findIndex((player) => player.id === currentPlayerId);
+        const finishedCount = snapshot.docs.filter((playerDoc) => {
+            const finishTime = playerDoc.data().finishTime;
+            return finishTime !== null && finishTime !== undefined;
+        }).length;
 
-        if (rank >= 0) {
-            const position = rank + 1;
-            finalRankingText = `${position}. místo z ${sortedPlayers.length} hráčů`;
-            elements.completionSummary.textContent = finalRankingText;
-            
-            // Show reward message for top 3 positions
-            if (position <= 3) {
-                elements.rewardMessage.classList.remove('hidden');
-            } else {
-                elements.rewardMessage.classList.add('hidden');
-            }
+        finalRankingText = `${finishedCount}. místo`;
+        elements.completionSummary.textContent = finalRankingText;
+
+        if (finishedCount <= 3) {
+            elements.rewardMessage.classList.remove('hidden');
         } else {
-            elements.completionSummary.textContent = 'Pořadí se nepodařilo určit.';
             elements.rewardMessage.classList.add('hidden');
         }
     } catch (error) {
