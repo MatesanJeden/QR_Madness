@@ -13,7 +13,7 @@
             "sizes": "192x192"
         }
     ],
-    "start_url": "?admin=true",
+    "start_url": "/admin.html",
     "background_color": "#FFFFFF",
     "display": "standalone",
     "scope": "/",

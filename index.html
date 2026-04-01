@@ -22,15 +22,6 @@
             }
         };
     </script>
-    <script>
-        // Dynamically set manifest based on admin mode
-        const manifestParams = new URLSearchParams(window.location.search);
-        const isAdminMode = manifestParams.get('admin') === 'true';
-        const manifestLink = document.querySelector('link[rel="manifest"]');
-        if (isAdminMode && manifestLink) {
-            manifestLink.href = 'manifest-admin.json';
-        }
-    </script>
 </head>
 
 <body
