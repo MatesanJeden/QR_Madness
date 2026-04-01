@@ -112,6 +112,7 @@ const elements = {
     adminCount: document.getElementById('admin-count'),
     adminScreen: document.getElementById('admin-screen'),
     completionSummary: document.getElementById('completion-summary'),
+    rewardMessage: document.getElementById('reward-message'),
     congratulationsScreen: document.getElementById('congratulations-screen'),
     dashboardScreen: document.getElementById('dashboard-screen'),
     itemsGrid: document.getElementById('items-grid'),
@@ -381,11 +382,13 @@ function renderPlayerDashboard(player) {
             elements.completionSummary.textContent = finalRankingText;
         } else {
             elements.completionSummary.textContent = 'Zjišťuji konečné pořadí...';
+            elements.rewardMessage.classList.add('hidden');
             void loadFinalRanking(player.id);
         }
     } else {
         finalRankingText = null;
         elements.completionSummary.textContent = `${foundCount} / ${ITEM_IDS.length} nalezených`;
+        elements.rewardMessage.classList.add('hidden');
     }
     elements.startedAt.textContent = formatTimestamp(player.startTime);
     elements.statusText.textContent = hasCompleted ? 'Dokončeno' : 'Prozkoumávání v plném proudu';
@@ -784,14 +787,24 @@ async function loadFinalRanking(currentPlayerId) {
         const rank = sortedPlayers.findIndex((player) => player.id === currentPlayerId);
 
         if (rank >= 0) {
-            finalRankingText = `${rank + 1}. místo z ${sortedPlayers.length} hráčů`;
+            const position = rank + 1;
+            finalRankingText = `${position}. místo z ${sortedPlayers.length} hráčů`;
             elements.completionSummary.textContent = finalRankingText;
+            
+            // Show reward message for top 3 positions
+            if (position <= 3) {
+                elements.rewardMessage.classList.remove('hidden');
+            } else {
+                elements.rewardMessage.classList.add('hidden');
+            }
         } else {
             elements.completionSummary.textContent = 'Pořadí se nepodařilo určit.';
+            elements.rewardMessage.classList.add('hidden');
         }
     } catch (error) {
         console.error(error);
         elements.completionSummary.textContent = 'Pořadí se nepodařilo načíst.';
+        elements.rewardMessage.classList.add('hidden');
     } finally {
         isLoadingFinalRanking = false;
     }
