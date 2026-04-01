@@ -124,7 +124,6 @@ const elements = {
     playerChip: document.getElementById('player-chip'),
     playerNameInput: document.getElementById('player-name'),
     progressCounter: document.getElementById('progress-counter'),
-    resetProgressButton: document.getElementById('reset-progress-button'),
     scanContinueButton: document.getElementById('scan-continue-button'),
     scanResultCaption: document.getElementById('scan-result-caption'),
     scanResultImage: document.getElementById('scan-result-image'),
@@ -132,13 +131,12 @@ const elements = {
     scanResultScreen: document.getElementById('scan-result-screen'),
     scanResultTitle: document.getElementById('scan-result-title'),
     scanResultVideo: document.getElementById('scan-result-video'),
-    simulateItemSelect: document.getElementById('simulate-item-select'),
-    simulateScanButton: document.getElementById('simulate-scan-button'),
     startButton: document.getElementById('start-button'),
     startForm: document.getElementById('start-form'),
     startedAt: document.getElementById('started-at'),
     statusText: document.getElementById('status-text'),
     template: document.getElementById('item-card-template'),
+    understandButton: document.getElementById('understand-button'),
     welcomeScreen: document.getElementById('welcome-screen')
 };
 
@@ -158,7 +156,6 @@ bootstrap();
 
 function bootstrap() {
     bindEvents();
-    populateSimulateItemSelect();
 
     try {
         const app = initializeApp(firebaseConfig);
@@ -268,55 +265,25 @@ function bindEvents() {
         }
     });
 
-    elements.simulateScanButton.addEventListener('click', async () => {
-        if (!playerId) {
-            showMessage('Nejprve založ hráče na úvodní obrazovce.', 'error');
-            return;
-        }
-
-        const simulatedItemId = sanitizeItemId(elements.simulateItemSelect.value);
-        if (!simulatedItemId) {
-            showMessage('Vyber platnou položku pro simulaci.', 'error');
-            return;
-        }
-
-        const item = TOTAL_ITEMS.find((entry) => entry.id === simulatedItemId) || null;
-        pendingItemId = simulatedItemId;
-        pendingImageParam = item ? item.image : null;
-        await collectPendingItem(playerId, latestPlayer?.collectedItems || []);
+    elements.understandButton.addEventListener('click', () => {
+        moveHowItWorksToSidebar();
     });
+}
 
-    elements.resetProgressButton.addEventListener('click', async () => {
-        if (!playerId) {
-            showMessage('Neexistuje aktivní hráč pro reset.', 'error');
-            return;
+function moveHowItWorksToSidebar() {
+    const howItWorksSection = document.getElementById('how-it-works-section');
+    const sidebar = document.querySelector('#dashboard-screen aside');
+
+    if (howItWorksSection && sidebar) {
+        // Remove the button since it's no longer needed
+        const understandButton = howItWorksSection.querySelector('#understand-button');
+        if (understandButton) {
+            understandButton.remove();
         }
 
-        const confirmed = window.confirm('Opravdu chceš resetovat progres tohoto hráče?');
-        if (!confirmed) {
-            return;
-        }
-
-        try {
-            const playerRef = doc(db, 'players', playerId);
-            await updateDoc(playerRef, {
-                collectedItems: [],
-                finishTime: null,
-                startTime: serverTimestamp()
-            });
-
-            finishUpdateRequested = false;
-            finalRankingText = null;
-            isViewingScanResult = false;
-            cleanScanResultView();
-            cleanItemParameterFromUrl();
-            showScreen('dashboard');
-            showMessage('Progres byl resetován. Hra běží znovu od začátku.', 'success');
-        } catch (error) {
-            console.error(error);
-            showMessage('Reset progresu se nepodařil.', 'error');
-        }
-    });
+        // Move the section to the sidebar
+        sidebar.insertBefore(howItWorksSection, sidebar.firstChild);
+    }
 }
 
 function subscribeToPlayer(currentPlayerId) {
@@ -802,20 +769,6 @@ function escapeHtml(value) {
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#39;');
-}
-
-function populateSimulateItemSelect() {
-    if (!elements.simulateItemSelect) {
-        return;
-    }
-
-    elements.simulateItemSelect.innerHTML = '';
-    TOTAL_ITEMS.forEach((item) => {
-        const option = document.createElement('option');
-        option.value = item.id;
-        option.textContent = `${item.label} - ${item.name}`;
-        elements.simulateItemSelect.appendChild(option);
-    });
 }
 
 async function loadFinalRanking(currentPlayerId) {
