@@ -33,9 +33,10 @@
                 <p
                     class="mb-2 inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-700">
                     Radikální soutěž</p>
-                <h1 class="font-display text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">QR Madness</h1>
-                <p class="mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">Naskenuj kódy, získej memy a vyhraj kyselé
-                    žížalky!</p>
+                <h1 class="font-display text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">Easter Eggs Hunt 🐣✨
+                </h1>
+                <p class="mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">Naskenuj kódy, získej memy a vyhraj tajnou
+                    cenu!</p>
             </div>
             <div id="player-chip" class="hidden rounded-2xl bg-slate-900 px-4 py-3 text-sm text-white"></div>
         </section>
@@ -45,6 +46,13 @@
             <div class="mb-6">
                 <p class="text-sm font-semibold uppercase tracking-[0.25em] text-amber-600">Vítej!</p>
                 <h2 class="mt-2 font-display text-3xl font-black text-slate-900">Připoj se k honu</h2>
+                <p class="mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">Milý radikále,<br>připravili jsme si pro
+                    tebe Velikonoční pátrací akci!</p>
+                <p class="mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">Po areálu je ukryto 10 QR kódů. Tvým
+                    úkolem je všechny najít a naskenovat. Jakmile vyplníš svou hráčskou přezdívku, můžeš se do toho
+                    pustit!</p>
+                <p class="mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">A pozor, prvních 10 úspěšných lovců získá
+                    tajnou cenu!</p>
             </div>
 
             <form id="start-form" class="space-y-4">
@@ -71,16 +79,24 @@
                     <div class="text-xs uppercase tracking-[0.2em] text-slate-300">Konečný výsledek</div>
                     <div id="completion-summary" class="mt-2 text-2xl font-black">0 / 0 nalezených</div>
                     <div id="reward-message" class="mt-2 text-sm text-emerald-300 hidden">Odměnu si můžeš vyzvednout u
-                        Filipa Neumaiera.</div>
+                        Filipa Neumaiera (<a href="tel:778768606" class="underline hover:text-emerald-200">tel. 778 768 606</a>).</div>
                 </div>
             </section>
 
             <article id="how-it-works-section"
                 class="rounded-[2rem] border border-white/70 bg-slate-900 p-6 text-white shadow-panel">
-                <p class="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">Jak to funguje</p>
-                <p class="mt-4 text-sm leading-6 text-slate-200">Každý QR kód skrývá unikátní meme. Cílem hry je
-                    posbírat všechny memy (naskenovat všechny QR kódy). Tak hurá do akce, první tři úspěšní hledači
-                    budou odměněni. LOV ZAČÍNÁ!</p>
+                <p class="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">Jak na to?</p>
+                <p class="mt-4 text-sm leading-6 text-slate-200">
+                    <strong>1. Najdi je všechny:</strong> Po areálu je ukryto přesně 10 unikátních
+                    QR kódů. Můžou být kdekoliv…
+                </p>
+                <p class="mt-4 text-sm leading-6 text-slate-200">
+                    <strong>2. Skenuj a sbírej:</strong> Tvým úkolem je kód najít a naskenovat. Každý kód ti odemkne nový meme do tvé sbírky a přiblíží tě k vítězství!
+                </p>
+                <p class="mt-4 text-sm leading-6 text-slate-200">
+                    <strong>3. Odměna:</strong> Za úspěšný lov tě čeká odměna! 🍬👀😁<br>Ale pozor, na nic nečekej, protože odměnu dostane pouze prvních deset úspěšných lovců!
+                </p>
+                <p class="mt-4 text-sm leading-6 text-slate-200">PŘEJEME ÚSPĚŠNÝ LOV! 🤍</p>
                 <div class="mt-4">
                     <button id="understand-button"
                         class="inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-200">Rozumím</button>
@@ -98,13 +114,16 @@
                             <div id="progress-counter" class="text-2xl font-black">0 / 0 nalezených</div>
                         </div>
                     </div>
-                    <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                    <div class="mt-4 grid gap-2 sm:grid-cols-3">
                         <button id="simulate-last-item-button"
                             class="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">Simulovat
                             poslední meme</button>
                         <button id="simulate-all-items-button"
                             class="inline-flex items-center justify-center rounded-2xl border border-sky-500 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-700 transition hover:bg-sky-100">Simulovat
                             všechna memy</button>
+                        <button id="clear-storage-button"
+                            class="inline-flex items-center justify-center rounded-2xl border border-rose-500 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">Vymazat
+                            localStorage</button>
                     </div>
                     <div id="items-grid" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"></div>
                 </article>

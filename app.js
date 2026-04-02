@@ -134,6 +134,7 @@ const elements = {
     scanResultVideo: document.getElementById('scan-result-video'),
     simulateLastItemButton: document.getElementById('simulate-last-item-button'),
     simulateAllItemsButton: document.getElementById('simulate-all-items-button'),
+    clearStorageButton: document.getElementById('clear-storage-button'),
     startButton: document.getElementById('start-button'),
     startForm: document.getElementById('start-form'),
     startedAt: document.getElementById('started-at'),
@@ -159,6 +160,12 @@ bootstrap();
 
 function bootstrap() {
     bindEvents();
+
+    // Check if user has already understood how it works
+    if (localStorage.getItem('user-understood-how-it-works') === 'true') {
+        // Move the panel to sidebar immediately
+        setTimeout(() => moveHowItWorksToSidebar(), 100);
+    }
 
     try {
         const app = initializeApp(firebaseConfig);
@@ -269,6 +276,8 @@ function bindEvents() {
     });
 
     elements.understandButton.addEventListener('click', () => {
+        // Save that user understood how it works
+        localStorage.setItem('user-understood-how-it-works', 'true');
         moveHowItWorksToSidebar();
     });
 
@@ -307,6 +316,14 @@ function bindEvents() {
         } catch (error) {
             console.error(error);
             showMessage('Simulace všech memů selhala.', 'error');
+        }
+    });
+
+    elements.clearStorageButton.addEventListener('click', () => {
+        const confirmed = window.confirm('Opravdu chceš vymazat všechna data z localStorage? Aplikace se restartuje.');
+        if (confirmed) {
+            localStorage.clear();
+            location.reload();
         }
     });
 }
