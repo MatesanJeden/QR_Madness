@@ -184,6 +184,13 @@ function bootstrap() {
         return;
     }
 
+    if (!isAdminMode) {
+        // Remove admin/test tools from regular user interface
+        elements.simulateLastItemButton?.remove();
+        elements.simulateAllItemsButton?.remove();
+        elements.clearStorageButton?.remove();
+    }
+
     if (!playerId) {
         showScreen('welcome');
         // Removed notification for first scanned QR code
