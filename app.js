@@ -117,6 +117,7 @@ const elements = {
     dashboardScreen: document.getElementById('dashboard-screen'),
     itemsGrid: document.getElementById('items-grid'),
     leaderboardBody: document.getElementById('leaderboard-body'),
+    leaderboardDisplay: document.getElementById('leaderboard-display'),
     messageModal: document.getElementById('message-modal'),
     messageModalClose: document.getElementById('message-modal-close'),
     messageModalPanel: document.getElementById('message-modal-panel'),
@@ -459,6 +460,7 @@ function renderPlayerDashboard(player) {
     elements.statusText.textContent = hasCompleted ? 'Dokončeno' : 'Prozkoumávání v plném proudu';
 
     renderItems(player.collectedItems);
+    renderPlayerLeaderboard(player.id, player.name);
 
     if (hasCompleted && !isViewingScanResult) {
         elements.congratulationsScreen.classList.remove('hidden');
@@ -551,16 +553,24 @@ function renderLeaderboard(players) {
         return;
     }
 
-    sortedPlayers.forEach((player) => {
+    sortedPlayers.forEach((player, index) => {
         const row = document.createElement('tr');
         const completed = Boolean(player.finishTime);
+        const isTopTen = index < 10;
+        const isWinner = completed && isTopTen;
+        
+        // Add green background for top 10 finished players
+        if (isWinner) {
+            row.classList.add('bg-emerald-50');
+        }
+        
         row.innerHTML = `
+      <td class="px-4 py-4 font-semibold text-slate-900">${index + 1}</td>
       <td class="px-4 py-4 font-semibold text-slate-900">${escapeHtml(player.name)}</td>
       <td class="px-4 py-4">${player.collectedItems.length} / ${ITEM_IDS.length}</td>
+      <td class="px-4 py-4">${completed ? 'Dokončeno' : 'Probíhá'}</td>
       <td class="px-4 py-4">${formatTimestamp(player.startTime)}</td>
       <td class="px-4 py-4">${formatTimestamp(player.finishTime)}</td>
-      <td class="px-4 py-4">${formatDuration(getElapsedTime(player.startTime, player.finishTime))}</td>
-      <td class="px-4 py-4">${completed ? 'Dokončeno' : 'Probíhá'}</td>
       <td class="px-4 py-4">
         <button
           type="button"
@@ -892,4 +902,40 @@ function sortPlayersForLeaderboard(players) {
 
         return String(left.name).localeCompare(String(right.name), 'cs');
     });
+}
+
+async function renderPlayerLeaderboard(currentPlayerId, currentPlayerName) {
+    try {
+        const snapshot = await getDocs(collection(db, 'players'));
+        const players = snapshot.docs.map((playerDoc) => normalizePlayer(playerDoc.id, playerDoc.data()));
+        const sortedPlayers = sortPlayersForLeaderboard(players);
+
+        const topThree = sortedPlayers.slice(0, 3);
+        const currentPlayerRank = sortedPlayers.findIndex((player) => player.id === currentPlayerId) + 1;
+
+        let html = '';
+
+        // Display top 3
+        topThree.forEach((player, index) => {
+            const isCurrent = player.id === currentPlayerId;
+            const fontWeight = isCurrent ? 'font-bold' : '';
+            const itemCount = player.collectedItems.length;
+            html += `<div class="${fontWeight}">${index + 1}. ${player.name} ${itemCount}/${ITEM_IDS.length}</div>`;
+        });
+
+        // If current player is not in top 3, show ellipsis and their rank
+        if (currentPlayerRank > 3) {
+            html += `<div class="text-center text-slate-500">...</div>`;
+            const currentPlayer = sortedPlayers.find((p) => p.id === currentPlayerId);
+            if (currentPlayer) {
+                const itemCount = currentPlayer.collectedItems.length;
+                html += `<div class="font-bold">${currentPlayerRank}. ${currentPlayerName} ${itemCount}/${ITEM_IDS.length}</div>`;
+            }
+        }
+
+        elements.leaderboardDisplay.innerHTML = html;
+    } catch (error) {
+        console.error(error);
+        elements.leaderboardDisplay.innerHTML = '<div class="text-sm text-slate-500">Žebříček se nepodařilo načíst</div>';
+    }
 }
