@@ -186,9 +186,10 @@ function bootstrap() {
 
     if (!playerId) {
         showScreen('welcome');
-        if (pendingItemId) {
-            showMessage('Po vytvoření hráče se právě naskenovaný QR kód automaticky přidá do sbírky.', 'success');
-        }
+        // Removed notification for first scanned QR code
+        // if (pendingItemId) {
+        //     showMessage('Po vytvoření hráče se právě naskenovaný QR kód automaticky přidá do sbírky.', 'success');
+        // }
         return;
     }
 
@@ -238,7 +239,7 @@ function bindEvents() {
             playerId = playerRef.id;
             finalRankingText = null;
             localStorage.setItem(LOCAL_STORAGE_PLAYER_KEY, playerId);
-            showMessage(`Vítej, ${name}. Hon právě začal.`, 'success');
+            showMessage(`Vítej, ${name}. Výborně! Právě jsi našel svůj první meme. Jen tak dál! Až si meme prohlédneš můžeš aplikaci klidně zavřít. Otevře se automaticky znovu při naskenování dalšího kódu.`, 'success');
             showScreen('dashboard');
             subscribeToPlayer(playerId);
         } catch (error) {
